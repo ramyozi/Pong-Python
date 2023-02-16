@@ -1,5 +1,7 @@
 import pygame
 import random
+import sys
+import time
 
 #  Pygame
 pygame.init()
@@ -12,7 +14,7 @@ BLACK = (0, 0, 0)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Pong Game")
+pygame.display.set_caption("Pong Game 2")
 
 # la balle et la raquette
 BALL_RADIUS = 10
@@ -33,6 +35,13 @@ clock = pygame.time.Clock()
 
 # boucle de jeu
 game_over = False
+score = 0
+level = 1
+font = pygame.font.Font(None, 30)
+start_time = time.time()
+elapsed_time = 0
+# temps de la partie
+start_time = time.time()
 
 while not game_over:
     for event in pygame.event.get():
@@ -51,6 +60,13 @@ while not game_over:
     # Vérifier la collision avec la raquette
     if ball.bottom >= paddle.top and ball.left >= paddle.left and ball.right <= paddle.right:
         ball_speed_y = -ball_speed_y
+        score += 10
+        if score % 50 == 0:
+            level += 1
+            BALL_SPEED += 1
+            BALL_RADIUS += 1
+            paddle_width -= 5
+            paddle.width = paddle_width
 
     # Vérifier si la balle a manqué la raquette
     if ball.bottom >= SCREEN_HEIGHT:
@@ -70,11 +86,34 @@ while not game_over:
     pygame.draw.circle(screen, WHITE, (ball.x, ball.y), BALL_RADIUS)
     pygame.draw.rect(screen, WHITE, paddle)
 
+    # Draw the score and level
+    text = font.render("Score: " + str(score) + "   Level: " + str(level) , True, WHITE)
+    time_text = font.render("Time: " + str(int(elapsed_time)) + "s", True, WHITE)
+
+    screen.blit(text, (10, 10))
+
     # Mettre à jour l'écran
     pygame.display.update()
 
     # le frame rate
     clock.tick(60)
 
-# Quit Pygame
-pygame.quit()
+    #temps passé depuis le début de la partie
+    elapsed_time = time.time() - start_time
+
+# Affichage le score final et le niveau
+screen.fill(BLACK)
+text = font.render("Game Over! Final Score: " + str(score) + "   Level: " + str(level) + "   Time: " + str(int(elapsed_time)) + "s", True, WHITE)
+screen.blit(text, (int(SCREEN_WIDTH / 2 - text.get_width() / 2), int(SCREEN_HEIGHT / 2 - text.get_height() / 2)))
+pygame.display.update()
+
+# Attendre un input pour quitter le jeu
+while True:
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.KEYDOWN:
+            pygame.quit()
+            sys.exit()
